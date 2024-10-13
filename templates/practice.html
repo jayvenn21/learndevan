@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Practice Mode</title>
+    <style>
+        /* Nature-themed background */
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #d9e6d9, #b3d9b3); /* Light green gradient */
+            color: #333;
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        /* Container styling */
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Soft shadow */
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            color: #5a6e33; /* Dark green */
+        }
+
+        button {
+            background-color: #5a6e33; /* Dark green buttons */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4c5e28; /* Darker green on hover */
+        }
+
+        canvas {
+            border: 2px solid #8a7c4a; /* Brown border for the canvas */
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        .clear-button {
+            background-color: #d24a4a; /* Red for clear button */
+        }
+
+        .clear-button:hover {
+            background-color: #b73d3d; /* Darker red on hover */
+        }
+
+        .home-button {
+            background-color: #d24a4a; /* Red for home button */
+            margin-top: 20px;
+        }
+
+        .home-button:hover {
+            background-color: #b73d3d; /* Darker red on hover */
+        }
+
+        #feedback {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #d24a4a; /* Red for incorrect message */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Draw the Character</h1>
+        <p>Character to draw: <strong>{{ selected_character }}</strong></p>
+
+        <!-- Drawing canvas -->
+        <canvas id="drawingCanvas" width="300" height="300"></canvas>
+
+        <!-- Controls -->
+        <div id="controls">
+            <button id="submitDrawing">Submit Drawing</button>
+            <button id="clearCanvas" class="clear-button">Clear Canvas</button>
+            <button id="backHome" class="home-button">Home</button>
+        </div>
+
+        <p id="feedback"></p>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('drawingCanvas');
+        const ctx = canvas.getContext('2d');
+        let drawing = false;
+
+        // Start and stop drawing on canvas
+        canvas.addEventListener('mousedown', (event) => {
+            drawing = true;
+            draw(event); // Initiate drawing immediately
+        });
+        canvas.addEventListener('mouseup', () => {
+            drawing = false;
+            ctx.beginPath(); // Reset path to prevent continuous drawing
+        });
+        canvas.addEventListener('mousemove', draw);
+
+        function draw(event) {
+            if (!drawing) return;
+            ctx.lineWidth = 5;
+            ctx.lineCap = 'round';
+            ctx.strokeStyle = 'black';
+            ctx.lineTo(event.offsetX, event.offsetY);
+            ctx.stroke();
+            ctx.beginPath();
+            ctx.moveTo(event.offsetX, event.offsetY);
+        }
+
+        // Clear the canvas
+        document.getElementById('clearCanvas').addEventListener('click', () => {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        });
+
+        // Submit the drawing
+        document.getElementById('submitDrawing').addEventListener('click', () => {
+            const dataURL = canvas.toDataURL('image/png');
+            fetch('/practice_mode', {
+                method: 'POST',
+                body: JSON.stringify({ image: dataURL, selected_character: '{{ selected_character }}' }),
+                headers: { 'Content-Type': 'application/json' }
+            })
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('feedback').innerText = `Predicted character: ${data.recognized_character}, Feedback: ${data.feedback}`;
+            })
+            .catch(error => console.error('Error:', error));
+        });
+
+        // Navigate back home
+        document.getElementById('backHome').addEventListener('click', () => {
+            window.location.href = '/';
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Devanagari Recognition App</title>
+    <style>
+        :root {
+            --primary-color: #5a6e33; /* Dark green */
+            --secondary-color: #8a7c4a; /* Brown */
+            --background-color: #d9e6d9; /* Light green background */
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            text-align: center;
+            margin: 20px;
+            background-color: var(--background-color);
+            color: #333;
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+        }
+
+        button {
+            margin: 10px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: var(--primary-color);
+            border: none;
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4c5e28; /* Darker green on hover */
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            button {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Welcome to the Devanagari Recognition App</h1>
+    <button onclick="location.href='/flashcards'">Flashcards</button>
+    <button onclick="location.href='/say_it'">Say It</button>
+    <button onclick="location.href='/practice_mode'">Practice Mode</button> <!-- New button for Practice Mode -->
+</body>
+</html>

@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Say It Mode</title>
+    <style>
+        /* Inline CSS for Say It Mode */
+
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #d9e6d9, #b3d9b3); /* Light green gradient */
+            color: #333; /* Dark text for readability */
+            text-align: center;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .container {
+            background-color: rgba(255, 255, 255, 0.8); /* Slightly transparent white background */
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            margin: 0 auto; /* Center the container */
+        }
+
+        h1 {
+            color: #5a6e33; /* Dark green */
+        }
+
+        h2 {
+            color: #8a7c4a; /* Brown */
+        }
+
+        button {
+            background-color: #5a6e33; /* Dark green for buttons */
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 10px 15px;
+            font-size: 16px;
+            cursor: pointer;
+            margin: 10px 0;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #4c5e28; /* Darker green on hover */
+        }
+
+        #recognitionResult {
+            margin-top: 20px;
+            font-size: 18px;
+            color: #d24a4a; /* Red for incorrect message */
+        }
+
+        .back-button {
+            background-color: #d24a4a; /* Red for back button */
+            margin-top: 20px;
+        }
+
+        .back-button:hover {
+            background-color: #b73d3d; /* Darker red on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Say It Mode</h1>
+        <h2 id="characterPrompt">Attempt to pronounce: </h2>
+        <button id="startRecognitionButton">Start Pronunciation Recognition</button>
+        <div id="recognitionResult"></div>
+        <button class="back-button" onclick="location.href='/'">Back to Home</button>
+    </div>
+
+    <script>
+        // List of Hindi characters and their expected pronunciations
+        const characters = [
+            { character: 'अ', pronunciation: 'a' },
+            { character: 'आ', pronunciation: 'aa' },
+            { character: 'इ', pronunciation: 'i' },
+            { character: 'ई', pronunciation: 'ii' },
+            { character: 'उ', pronunciation: 'u' },
+            { character: 'ऊ', pronunciation: 'uu' },
+            { character: 'ऋ', pronunciation: 'ri' },
+            { character: 'ए', pronunciation: 'e' },
+            { character: 'ऐ', pronunciation: 'ai' },
+            { character: 'ओ', pronunciation: 'o' },
+            { character: 'औ', pronunciation: 'au' },
+            { character: 'अं', pronunciation: 'am' },
+            { character: 'अ:', pronunciation: 'ah' },
+            // Add more characters and pronunciations as needed
+        ];
+
+        // Function to randomly select a character
+        function getRandomCharacter() {
+            const randomIndex = Math.floor(Math.random() * characters.length);
+            return characters[randomIndex];
+        }
+
+        // Set the random character on page load
+        const selectedCharacter = getRandomCharacter();
+        document.getElementById('characterPrompt').innerText += selectedCharacter.character;
+
+        document.getElementById('startRecognitionButton').addEventListener('click', function () {
+            recognizePronunciation(selectedCharacter.pronunciation);
+        });
+
+        function recognizePronunciation(expectedPronunciation) {
+            const recognizer = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+            recognizer.lang = 'en-US';  // Set language to Hindi
+
+            recognizer.onresult = function(event) {
+                const recognizedText = event.results[0][0].transcript;
+                console.log('Recognized:', recognizedText);
+                
+                // Compare recognized text with expected pronunciation
+                const isCorrect = recognizedText.trim().toLowerCase() === expectedPronunciation.trim().toLowerCase();
+                const resultMessage = isCorrect 
+                    ? 'Correct pronunciation!' 
+                    : `Incorrect pronunciation. You said: ${recognizedText}. Expected: ${expectedPronunciation}`;
+                
+                document.getElementById('recognitionResult').innerText = resultMessage;
+            };
+
+            recognizer.onerror = function(event) {
+                console.error('Recognition error:', event.error);
+                document.getElementById('recognitionResult').innerText = 'Error recognizing speech.';
+            };
+
+            recognizer.start();
+        }
+    </script>
+</body>
+</html>

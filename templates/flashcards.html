@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom Styles -->
+    <style>
+        :root {
+            --primary-color: #5a6e33; /* Dark green */
+            --secondary-color: #8a7c4a; /* Brown */
+            --accent-color: #4CAF50; /* Green */
+            --background-color: #d9e6d9; /* Light green */
+            --card-background: rgba(255, 255, 255, 0.8); /* Slightly transparent white */
+            --flashcard-background: #fff;
+            --flashcard-back-color: #f0f0f0;
+            --pronunciation-color: var(--primary-color); /* Dark green */
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background: linear-gradient(to bottom, var(--background-color), #b3d9b3); /* Light green gradient */
+            color: #333; /* Dark text for contrast */
+        }
+        
+        .container {
+            background-color: var(--card-background);
+            border-radius: 15px;
+            padding: 20px;
+            margin-top: 50px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        h1 {
+            color: var(--secondary-color); /* Brown color for headings */
+            margin-bottom: 20px;
+        }
+        
+        .flashcards {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .flashcard-container {
+            margin: 10px;
+            perspective: 1000px;
+        }
+        
+        .flashcard {
+            width: 150px;
+            height: 200px;
+            background: var(--flashcard-background);
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+            position: relative;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+        
+        .flashcard:hover {
+            transform: rotateY(180deg);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .flashcard-front, .flashcard-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+        
+        .flashcard-front {
+            background: var(--flashcard-background);
+        }
+        
+        .flashcard-back {
+            background: var(--flashcard-back-color);
+            transform: rotateY(180deg);
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        img {
+            max-width: 100%;
+            max-height: 100px;
+            margin-top: 10px;
+        }
+        
+        .pronunciation {
+            cursor: pointer;
+            color: var(--pronunciation-color); /* Dark green color for pronunciation text */
+            text-decoration: underline;
+        }
+
+        /* Navigation buttons */
+        #navigation {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        button {
+            margin: 0 5px;
+        }
+
+        /* Custom Bootstrap button */
+        .btn-primary {
+            background-color: var(--primary-color); /* Dark green */
+            border-color: var(--primary-color);
+        }
+
+        .btn-primary:hover {
+            background-color: #4c5e28; /* Darker green */
+            border-color: #3d4723; /* Darker border */
+        }
+
+        .btn-secondary {
+            background-color: #8a7c4a; /* Brown */
+            border-color: #8a7c4a;
+        }
+
+        .btn-secondary:hover {
+            background-color: #7c6e41; /* Darker brown */
+            border-color: #6e6039; /* Darker border */
+        }
+
+        .btn-danger {
+            background-color: #d24a4a; /* Red */
+        }
+
+        .btn-danger:hover {
+            background-color: #b73d3d; /* Darker red */
+        }
+
+        @media (max-width: 768px) {
+            .flashcard {
+                width: 100px;
+                height: 150px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Character Flashcards</h1>
+        <div class="flashcards">
+            {% for letter, image, pronunciation, audio in zip(letters, images, pronunciations, audio_files) %}
+                <div class="flashcard-container">
+                    <div class="flashcard">
+                        <div class="flashcard-front">
+                            <p>{{ letter }}</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <img src="{{ image }}" alt="{{ letter }}">
+                            <p class="pronunciation" onclick="playAudio('{{ audio }}')">{{ pronunciation }}</p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <div id="navigation">
+            <button id="prevButton" class="btn btn-secondary" onclick="navigate(-1)">Previous</button>
+            <button id="nextButton" class="btn btn-secondary" onclick="navigate(1)">Next</button>
+            <input type="number" id="numCards" placeholder="Number of cards" min="1" class="form-control d-inline-block w-25 mx-2">
+            <button id="generateButton" class="btn btn-primary">Generate Cards</button>
+        </div>
+        <button class="btn btn-danger mt-3" onclick="location.href='/'">Back to Home</button>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        let currentCardIndex = 0;
+        const flashcards = document.querySelectorAll('.flashcard-container');
+
+        function displayCard(index) {
+            flashcards.forEach((card, i) => {
+                card.style.display = (i === index) ? 'inline-block' : 'none';
+            });
+        }
+
+        function navigate(direction) {
+            currentCardIndex += direction;
+            if (currentCardIndex < 0) {
+                currentCardIndex = 0;
+            } else if (currentCardIndex >= flashcards.length) {
+                currentCardIndex = flashcards.length - 1;
+            }
+            displayCard(currentCardIndex);
+        }
+
+        document.getElementById('generateButton').addEventListener('click', function() {
+            const numCards = document.getElementById('numCards').value;
+            window.location.href = `/flashcards?num_cards=${numCards}`;  // Redirect to generate random cards
+        });
+
+        // Initialize display with the first card
+        displayCard(currentCardIndex);
+
+        function playAudio(audioSrc) {
+            const audioElement = new Audio(audioSrc);
+            audioElement.play();
+        }
+    </script>
+</body>
+</html>
